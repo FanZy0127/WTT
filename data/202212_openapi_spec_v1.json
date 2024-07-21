@@ -1,0 +1,158 @@
+      openapi: '3.0.0'
+      info:
+        title: "Weenat Test Backend"
+        contact:
+          email: "dev@weenat.com"
+        description: |
+
+          ## Ennoncé
+
+          Cet exercice vise à mettre en place:
+
+          - un script de récupération de donnée depuis une tierce partie puis stockage dans une base de donnée;
+
+          - une interface pour afficher les données récupérées;
+
+          Le service devra être écrit en python. L'analyse des données devra utiliser les librairies numpy ou pandas.
+
+        version: "1.0"
+      servers:
+        - url: http://localhost
+      tags:
+        - name: data
+      components:
+        parameters:
+          sinceParam: {
+            "name": "since",
+            "in": "query",
+            "description": "Filter by date and time. Ingestion date of returned records should be higher than the value provided. Format expected ISO-8601.",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+            }
+          }
+          beforeParam: {
+            "name": "before",
+            "in": "query",
+            "description": "Filter by date and time. Ingestion date of returned records should be lower than the value provided. Default is now. Format expected ISO-8601.",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+            },
+            "allowEmptyValue": true,
+          }
+          spanParam: {
+            "name": "span",
+            "in": "query",
+            "description": "Aggregates data given this parameter. Default value should be raw (meaning no aggregate).",
+            "schema": {
+              "type": "string",
+              "enum": ["day", "hour", "max"]
+            }
+          }
+          dataloggerParam: {
+            "name": "datalogger",
+            "in": "query",
+            "description": "Filter by datalogger. This field is required. Should be an exact match of the datalogger id",
+            "required": true,
+            "schema": {
+              "type": "string",
+            }
+          }
+        schemas:
+          labelField: {
+            "type": "string",
+            "enum": ["temp", "precip", "hum"],
+            "description": "Name of the metric."
+          }
+          DataRecordResponse: {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "$ref": "#/components/schemas/labelField"
+                },
+                "measured_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "value": {
+                  "type": "number",
+                  "format": "float"
+                }
+              },
+            }
+          }
+          DataRecordAggregateResponse: {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "$ref": "#/components/schemas/labelField"
+                },
+                "time_slot": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Begining of the range trimmed to the span. Eg.: if span = day, this value would be: 2021-12-01T00:00:00, 2021-12-02T00:00:00",
+                },
+                "value": {
+                  "type": "number",
+                  "format": "float",
+                  "description": "Aggregate of the measurement within the range. Mean for temp and hum metrics, Sum for the rain."
+                }
+              }
+            }
+          }
+      paths:
+        "/api/summary":
+          get:
+            "operationId": "api_fetch_data_aggregates"
+            "tags":
+              - data
+            "description": |
+            
+              Endpoint to returns the data stored.
+              
+              The output will be either raw data or aggregates. The behaviour is driven by the query parameter span.
+            
+                Here are the table of corresponding aggregates:
+            
+                - temp: min, max, avg;
+            
+                - hum: min, max, avg;
+            
+                - precip: sum;
+            
+            "parameters":
+              - $ref: "#/components/parameters/sinceParam"
+              - $ref: "#/components/parameters/beforeParam"
+              - $ref: "#/components/parameters/spanParam"
+              - $ref: "#/components/parameters/dataloggerParam"
+            "responses":
+              "200":
+                "description": "Array of records matching the input criteria"
+                "content":
+                  "application/json":
+                    "schema":
+                      "$ref": "#/components/schemas/DataRecordAggregateResponse"
+        "/api/data":
+          get:
+            "operationId": "api_fetch_data_raw"
+            "tags":
+              - data
+            "description": "Endpoint to returns the data stored. The output is the raw data stored."
+            "parameters":
+              - "$ref": "#/components/parameters/sinceParam"
+              - "$ref": "#/components/parameters/beforeParam"
+              - "$ref": "#/components/parameters/dataloggerParam"
+            "responses":
+              "400":
+                "description": "Missing required values."
+              "200":
+                "description": "Array of records matching the input criteria"
+                "content":
+                  "application/json":
+                    "schema":
+                      "$ref": "#/components/schemas/DataRecordResponse"
