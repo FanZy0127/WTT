@@ -143,3 +143,9 @@ Cliquez sur **Try it out** à droite de *Parameters*, remplissez les paramètres
 ```sh
 pytest tests/nom_du_fichier_de_test
 ```
+
+OU pour run tous les tests 
+
+```sh
+coverage run -m pytest
+```
