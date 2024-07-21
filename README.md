@@ -16,8 +16,8 @@ Avant de commencer, assurez-vous d'avoir les éléments suivants installés sur 
 Clonez le dépôt GitHub sur votre machine locale :
 
 ```sh
-git clone <URL_DU_DEPOT>
-cd <NOM_DU_DEPOT>
+git clone https://github.com/FanZy0127/WTT.git
+cd WTT
 ```
 
 ## Création et activation de l'environnement virtuel
