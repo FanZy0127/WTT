@@ -1,3 +1,4 @@
+import logging
 import subprocess
 from fastapi import FastAPI
 from app.api.endpoints import data_ingestion, data_retrieval
@@ -8,8 +9,11 @@ from app.data_validation import extract_files, validate_json_or_yaml
 from sqlalchemy.ext.asyncio import AsyncSession
 from dotenv import load_dotenv
 import os
+import asyncio
 
 app = FastAPI()
+
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 DATA_TAR_GZ_PATH = 'data/202212-datalogger.tar.gz'
 EXTRACTED_DATA_PATH = 'data/extracted'
@@ -38,10 +42,12 @@ async def startup_event():
     validate_json_or_yaml(FILE_PATHS)
 
     # Start JSON Server
-    subprocess.Popen([JSON_SERVER_PATH, "--watch", "data/extracted/datalogger/db.json"])
+    subprocess.Popen([JSON_SERVER_PATH, "--watch", "data/extracted/datalogger/db.json", "--port", "3001"])
 
     # Initialize the database
     await init_db()
+
+    await asyncio.sleep(1)
 
     # Create an async session
     async with AsyncSession(engine) as db:

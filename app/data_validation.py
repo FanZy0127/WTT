@@ -4,6 +4,10 @@ import tarfile
 import time
 import yaml
 from tqdm import tqdm
+import logging
+
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
 
 # File paths
 DATA_TAR_GZ_PATH = 'data/202212-datalogger.tar.gz'
@@ -20,7 +24,7 @@ def extract_files(tar_gz_path: str, extract_path: str):
         os.makedirs(extract_path)
     with tarfile.open(tar_gz_path, 'r:gz') as tar:
         tar.extractall(path=extract_path)
-    print(f"Files extracted to {extract_path}")
+    logger.info(f"Files extracted to {extract_path}")
 
 # Function to load and validate JSON or YAML data with progress bar and elapsed time
 def validate_json_or_yaml(file_paths: list):
@@ -45,25 +49,25 @@ def validate_json_or_yaml(file_paths: list):
                 try:
                     json_data = json.loads(data)
                     elapsed_time = time.time() - start_time
-                    print(f"{os.path.basename(file_path)} : Data OK")
-                    print(f"Elapsed Time : {elapsed_time:.2f} seconds")
+                    logger.info(f"{os.path.basename(file_path)} : Data OK")
+                    logger.info(f"Elapsed Time : {elapsed_time:.2f} seconds")
                     continue  # Move to the next file
                 except json.JSONDecodeError:
                     # If JSON loading fails, try loading as YAML
                     try:
                         yaml_data = yaml.safe_load(data)
                         elapsed_time = time.time() - start_time
-                        print(f"{os.path.basename(file_path)} : Data OK")
-                        print(f"Elapsed Time : {elapsed_time:.2f} seconds")
+                        logger.info(f"{os.path.basename(file_path)} : Data OK")
+                        logger.info(f"Elapsed Time : {elapsed_time:.2f} seconds")
                     except yaml.YAMLError as e:
                         elapsed_time = time.time() - start_time
-                        print(f"{os.path.basename(file_path)} : Data Error => {e}")
-                        print(f"Elapsed Time : {elapsed_time:.2f} seconds")
+                        logger.error(f"{os.path.basename(file_path)} : Data Error => {e}")
+                        logger.info(f"Elapsed Time : {elapsed_time:.2f} seconds")
                         display_error_context(data, e)
         except FileNotFoundError as e:
             elapsed_time = time.time() - start_time
-            print(f"{os.path.basename(file_path)} : Data Error => {e}")
-            print(f"Elapsed Time : {elapsed_time:.2f} seconds")
+            logger.error(f"{os.path.basename(file_path)} : Data Error => {e}")
+            logger.info(f"Elapsed Time : {elapsed_time:.2f} seconds")
 
 # Function to display the context around the error
 def display_error_context(data: str, error: Exception):
@@ -72,9 +76,9 @@ def display_error_context(data: str, error: Exception):
         start = max(0, error_pos - 20)
         end = min(len(data), error_pos + 20)
         context = data[start:end]
-        print(f"Context around the error: '{context}'")
+        logger.error(f"Context around the error: '{context}'")
     else:
-        print("Could not determine the exact position of the error.")
+        logger.error("Could not determine the exact position of the error.")
 
 # Main function for standalone execution
 def main():

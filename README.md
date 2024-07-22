@@ -68,7 +68,7 @@ pip install -r requirements.txt
 ### visualisations :
 
 ```sh
-hypercorn app.main:app --reload
+hypercorn app.main:app --config hypercorn_config.py
 ```
 
 #### Par requête curl

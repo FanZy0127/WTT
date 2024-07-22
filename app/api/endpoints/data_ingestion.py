@@ -1,3 +1,4 @@
+import logging
 import requests
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
@@ -11,6 +12,8 @@ from typing import List, Dict, Any
 
 router = APIRouter()
 logger = get_logger("data_ingestion")
+
+logger.setLevel(logging.ERROR)
 
 def fetch_data_from_json_server() -> List[DataCreate]:
     try:
