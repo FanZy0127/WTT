@@ -32,7 +32,7 @@ DATA_URL=http://localhost:3000/measurements
 
 ## Création et activation de l'environnement virtuel
 
-### Sous Windows :
+### Sous Mac/Linux/Git Bash :
 
 ```sh
 python -m venv venv
@@ -42,46 +42,19 @@ source venv/bin/activate
 ### Installation des dépendances Python
 
 ```sh
+pip install --upgrade pip
 pip install -r requirements.txt
-```
-
-### Installation du serveur JSON
-
-```sh
-npm install -g json-server
 ```
 
 ## Lancement du projet
 
-### Lancement du serveur JSON
-
-```sh
-json-server --watch data/extracted/datalogger/db.json
-```
-
-###  Initialisation de la bdd (base de données)
-
-#### Depuis la racine du projet
-
-```sh
-python app.init_db.py
-```
-
-OU
-
-#### Depuis /app
-
-```sh
-python init_db.py
-```
-
-### Lancement du serveur FastAPI avec hypercorn
+### Lancement de l'application FastAPI avec hypercorn (incluant l'extraction et la validation des données, le démarrage 
+### du serveur JSON, l'initialisation de la base de données, l'ingestion des données et la génération de la data 
+### visualisations :
 
 ```sh
 hypercorn app.main:app --reload
 ```
-
-### Ingestion des données
 
 #### Par requête curl
 
@@ -158,6 +131,12 @@ OU pour run tous les tests
 
 ```sh
 coverage run -m pytest
+```
+
+OU
+
+```sh
+pytest tests/
 ```
 
 OU pour une couverture plus complètes et détaillée

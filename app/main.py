@@ -1,3 +1,4 @@
+import subprocess
 from fastapi import FastAPI
 from app.api.endpoints import data_ingestion, data_retrieval
 from app.db import init_db
@@ -17,11 +18,15 @@ app.include_router(data_retrieval.router, prefix="/api", tags=["data"])
 def read_root() -> dict:
     return {"message": "Welcome to Baptiste HARAMBOURE's data ingestion and retrieval API for Weenat's technical test."}
 
+
 @app.on_event("startup")
 async def startup_event():
     # Extract and validate data
-    extract_files()
-    validate_json_or_yaml()
+    extract_files(DATA_TAR_GZ_PATH, EXTRACTED_DATA_PATH)
+    validate_json_or_yaml(FILE_PATHS)
+
+    # Start JSON server
+    subprocess.Popen(["json-server", "--watch", "data/extracted/datalogger/db.json"])
 
     # Initialize the database
     await init_db()
@@ -32,3 +37,4 @@ async def startup_event():
 
     # Generate data visualizations
     generate_visualizations(db=db)
+
