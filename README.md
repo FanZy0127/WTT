@@ -56,7 +56,7 @@ source venv/bin/activate
 ### Installation des dépendances Python
 
 ```sh
-pip install --upgrade pip
+python.exe -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
