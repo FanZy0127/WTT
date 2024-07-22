@@ -76,9 +76,13 @@ def display_error_context(data, error):
     else:
         print("Could not determine the exact position of the error.")
 
-if __name__ == "__main__":
+# Main function for standalone execution
+def main():
     # Extract files
     extract_files(DATA_TAR_GZ_PATH, EXTRACTED_DATA_PATH)
 
     # Validate data from all file paths
     validate_json_or_yaml(FILE_PATHS)
+
+if __name__ == "__main__":
+    main()

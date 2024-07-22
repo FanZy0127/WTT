@@ -1,0 +1,21 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503, E501
+exclude =
+    .venv,
+    __pycache__,
+    build,
+    dist,
+    .git,
+    .tox,
+    migrations
+
+per-file-ignores =
+    # Ignorer certaines erreurs dans les fichiers de test
+    tests/*: D100, D101, D102, D103, D104, D105, D106, D107, S101
+
+plugins =
+    flake8-bugbear,
+    flake8-comprehensions,
+    flake8-docstrings,
+    flake8-import-order

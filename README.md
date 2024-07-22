@@ -6,7 +6,7 @@ Ce projet est une application Python d’ingestion et de restitution de données
 
 Avant de commencer, assurez-vous d'avoir les éléments suivants installés sur votre machine :
 
-- Python 3.9 ou plus récent
+- Python 3.8 ou plus récent
 - Node.js et npm (pour le serveur JSON)
 
 ## Installation
@@ -18,6 +18,16 @@ Clonez le dépôt GitHub sur votre machine locale :
 ```sh
 git clone https://github.com/FanZy0127/WTT.git
 cd WTT
+```
+
+Créez un .env à la racine dans lequel pour entrerez la configuration suivante : 
+
+```dotenv
+DATABASE_URL=sqlite+aiosqlite:///./test.db
+# For PostgreSQL, uncomment the line below and comment the SQLite line
+# DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname
+
+DATA_URL=http://localhost:3000/measurements
 ```
 
 ## Création et activation de l'environnement virtuel
@@ -138,7 +148,7 @@ Cliquez sur **Try it out** à droite de *Parameters*, remplissez les paramètres
 
 ## Tests
 
-### Exécution des tests unitaires (TU)
+### Exécution manuelle des tests unitaires (TU)
 
 ```sh
 pytest tests/nom_du_fichier_de_test
@@ -148,4 +158,10 @@ OU pour run tous les tests
 
 ```sh
 coverage run -m pytest
+```
+
+OU pour une couverture plus complètes et détaillée
+
+```sh
+pytest --cov=app --cov-report=term-missing:skip-covered --cov-report=xml --cov-report=html
 ```

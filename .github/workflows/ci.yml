@@ -1,0 +1,114 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: [3.8, 3.9, 3.10, 3.11]
+        node-version: [16.x, 18.x]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install Node dependencies
+      run: |
+        cd data/extracted/datalogger
+        npm install
+
+    - name: Start JSON Server (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        nohup json-server --watch data/extracted/datalogger/db.json &
+
+    - name: Start JSON Server (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        Start-Process -NoNewWindow json-server --watch data/extracted/datalogger/db.json
+
+    - name: Install Python dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install Python dependencies (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        python -m venv venv
+        .\venv\Scripts\activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Lint with ruff
+      run: |
+        source venv/bin/activate
+        ruff .
+
+    - name: Type check with mypy
+      run: |
+        source venv/bin/activate
+        mypy .
+
+    - name: Format check with black
+      run: |
+        source venv/bin/activate
+        black --check .
+
+    - name: Run main script (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        source venv/bin/activate
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+    - name: Run main script (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        .\venv\Scripts\activate
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+    - name: Run tests with pytest (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        source venv/bin/activate
+        pytest --cov=app --cov-report=term-missing:skip-covered --cov-report=xml --cov-report=html
+
+    - name: Run tests with pytest (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        .\venv\Scripts\activate
+        pytest --cov=app --cov-report=term-missing:skip-covered --cov-report=xml --cov-report=html
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-report
+        path: coverage.xml
+
+    - name: Upload HTML coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: html-coverage-report
+        path: htmlcov/
+
+    - name: Upload data visualization
+      uses: actions/upload-artifact@v2
+      with:
+        name: data-visualization
+        path: /tmp/*.png

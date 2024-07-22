@@ -14,6 +14,13 @@ pytest
 pytest-asyncio
 mypy
 ruff
+black
+flake8
+flake8-bugbear
+flake8-comprehensions
+flake8-docstrings
+flake8-import-order
 coverage
 psycopg2-binary
 tqdm
+pre-commit
