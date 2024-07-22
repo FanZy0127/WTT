@@ -1,6 +1,8 @@
 fastapi
 uvicorn
 hypercorn
+matplotlib
+seaborn
 numpy
 pandas
 databases

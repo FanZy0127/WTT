@@ -7,7 +7,6 @@ from typing import Optional
 
 router = APIRouter()
 
-
 @router.get("/data", response_model=DataRetrievalResponse)
 async def retrieve_data(
     datalogger: str = Query(...),
@@ -20,11 +19,10 @@ async def retrieve_data(
         raise HTTPException(status_code=404, detail="No data found matching the criteria.")
     return {"data": data}
 
-
 @router.get("/summary", response_model=AggregatedDataRetrievalResponse)
 async def retrieve_aggregated_data(
     datalogger: str = Query(...),
-    span: str = Query("raw"),
+    span: str = Query("day"),  # Set default span to "day" if not provided
     since: Optional[str] = Query(None),
     before: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db)

@@ -1,5 +1,15 @@
 from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
+from datetime import datetime
+
+
+class DataCreate(BaseModel):
+    label: str
+    measured_at: datetime
+    value: float
+
+    class Config:
+        orm_mode = True
 
 
 class DataRecord(BaseModel):

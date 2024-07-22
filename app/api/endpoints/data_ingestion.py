@@ -5,29 +5,12 @@ from app.crud import store_data_in_db, check_duplicate_data
 from app.db import get_db
 from app.schemas import DataIngestionResponse
 from app.config import settings
-import logging
-from io import StringIO
+from app.logger import get_logger
 import json
 from typing import List, Dict, Any
 
 router = APIRouter()
-
-# Configure logger
-log_stream = StringIO()
-logging.basicConfig(stream=log_stream, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-# Reusable logger setup
-def get_logger():
-    logger = logging.getLogger("data_ingestion")
-    if not logger.hasHandlers():
-        handler = logging.StreamHandler(log_stream)
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
-
-logger = get_logger()
+logger = get_logger("data_ingestion")
 
 def fetch_data_from_json_server() -> List[Dict[str, Any]]:
     try:
@@ -99,12 +82,6 @@ async def ingest_data(db: AsyncSession = Depends(get_db)) -> DataIngestionRespon
         await store_data_in_db(data, db)
     except Exception as e:
         logger.error(f"Error ingesting data: {str(e)}")
-        # Display a summary of errors
-        print("----- ERROR LOGS -----")
-        error_logs = log_stream.getvalue().split('\n')[-20:]  # Last 20 lines of logs
-        for log in error_logs:
-            if log.strip():  # Ignore empty lines
-                print(log)
         raise HTTPException(status_code=500, detail=f"Error ingesting data: {str(e)}. Check server logs for more details.")
     return DataIngestionResponse(message="Data ingested successfully")
 
@@ -121,10 +98,4 @@ async def ingest_data_from_main(db: AsyncSession):
         await store_data_in_db(data, db)
     except Exception as e:
         logger.error(f"Error ingesting data: {str(e)}")
-        # Display a summary of errors
-        print("----- ERROR LOGS -----")
-        error_logs = log_stream.getvalue().split('\n')[-20:]  # Last 20 lines of logs
-        for log in error_logs:
-            if log.strip():  # Ignore empty lines
-                print(log)
         raise Exception(f"Error ingesting data: {str(e)}. Check server logs for more details.")
