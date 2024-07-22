@@ -6,3 +6,4 @@
 /data/extracted
 .env
 pyvenv.cfg
+test.db

@@ -1,11 +1,13 @@
 import subprocess
 from fastapi import FastAPI
 from app.api.endpoints import data_ingestion, data_retrieval
-from app.db import init_db, get_db
+from app.db import init_db, get_db, engine
 from app.api.endpoints.data_ingestion import ingest_data_from_main
 from app.data_viz import generate_visualizations
 from app.data_validation import extract_files, validate_json_or_yaml
 from sqlalchemy.ext.asyncio import AsyncSession
+from dotenv import load_dotenv
+import os
 
 app = FastAPI()
 
@@ -16,6 +18,10 @@ FILE_PATHS = [
     'data/202212_api_requirements.json',
     'data/202212_openapi_spec_v1.json'
 ]
+
+load_dotenv()
+
+JSON_SERVER_PATH = os.getenv("JSON_SERVER_PATH")
 
 app.include_router(data_ingestion.router, prefix="/ingest", tags=["data_ingestion"])
 app.include_router(data_retrieval.router, prefix="/api", tags=["data"])
@@ -32,14 +38,15 @@ async def startup_event():
     validate_json_or_yaml(FILE_PATHS)
 
     # Start JSON Server
-    subprocess.Popen(["json-server", "--watch", "data/extracted/datalogger/db.json"])
+    subprocess.Popen([JSON_SERVER_PATH, "--watch", "data/extracted/datalogger/db.json"])
 
     # Initialize the database
     await init_db()
 
-    # Run data ingestion
-    db: AsyncSession = next(get_db())
-    await ingest_data_from_main(db=db)
+    # Create an async session
+    async with AsyncSession(engine) as db:
+        # Run data ingestion
+        await ingest_data_from_main(db=db)
 
-    # Generate data visualizations
-    await generate_visualizations(db=db)
+        # Generate data visualizations
+        await generate_visualizations(db=db)

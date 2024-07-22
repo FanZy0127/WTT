@@ -20,7 +20,7 @@ git clone https://github.com/FanZy0127/WTT.git
 cd WTT
 ```
 
-Créez un .env à la racine dans lequel pour entrerez la configuration suivante : 
+Créez un .env à la racine dans lequel pour entrerez la configuration locale suivante : 
 
 ```dotenv
 DATABASE_URL=sqlite+aiosqlite:///./test.db
@@ -28,6 +28,7 @@ DATABASE_URL=sqlite+aiosqlite:///./test.db
 # DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname
 
 DATA_URL=http://localhost:3000/measurements
+JSON_SERVER_PATH="C:\\PATH\\TO\\YOUR\\npm\\json-server.cmd"
 ```
 
 ## Création et activation de l'environnement virtuel

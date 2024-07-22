@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
 from app.crud import store_data_in_db, check_duplicate_data
 from app.db import get_db
-from app.schemas import DataIngestionResponse
+from app.schemas import DataIngestionResponse, DataCreate
 from app.config import settings
 from app.logger import get_logger
 import json
@@ -12,19 +12,23 @@ from typing import List, Dict, Any
 router = APIRouter()
 logger = get_logger("data_ingestion")
 
-def fetch_data_from_json_server() -> List[Dict[str, Any]]:
+def fetch_data_from_json_server() -> List[DataCreate]:
     try:
         response = requests.get(settings.DATA_URL)
         response.raise_for_status()
         raw_data = response.json()
         logger.info(f"Number of records received: {len(raw_data)}")
 
-        # Log the raw data for inspection
-        logger.info(f"Raw data received: {json.dumps(raw_data, indent=2)[:1000]}")  # Log only the first 1000 characters to avoid excessive logging
+        # Log the raw data for inspection, truncate if too large
+        raw_data_str = json.dumps(raw_data, indent=2)
+        if len(raw_data_str) > 1000:
+            logger.info(f"Raw data received (truncated): {raw_data_str[:500]}...{raw_data_str[-500:]}")
+        else:
+            logger.info(f"Raw data received: {raw_data_str}")
 
         transformed_data, ignored_records = transform_data(raw_data)
         logger.info(f"Total ignored records: {ignored_records}")
-        return transformed_data
+        return [DataCreate(**record) for record in transformed_data]
     except requests.RequestException as e:
         logger.error(f"Error fetching data from JSON server: {e}")
         raise HTTPException(status_code=500, detail="Error fetching data")
@@ -66,11 +70,17 @@ def process_record(record: Dict[str, Any], transformed_data: List[Dict[str, Any]
         if isinstance(values, dict):
             for label, value in values.items():
                 logger.info(f"Label: {label}, Value: {value}")
-                transformed_data.append({
-                    'label': label,
-                    'measured_at': timestamp,
-                    'value': value
-                })
+                # Ensure that value is a valid float
+                try:
+                    value = float(value)
+                    transformed_data.append({
+                        'label': label,
+                        'measured_at': timestamp,
+                        'value': value
+                    })
+                except (ValueError, TypeError):
+                    logger.warning(f"Ignored entry with invalid value for label {label} at {timestamp}: {value}")
+                    ignored_records += 1
         else:
             logger.warning(f"Ignored entry with expected dict, got {type(values).__name__}: {values}")
             ignored_records += 1
@@ -98,4 +108,11 @@ async def ingest_data_from_main(db: AsyncSession):
         await store_data_in_db(data, db)
     except Exception as e:
         logger.error(f"Error ingesting data: {str(e)}")
+        # Display a summary of errors
+        print("----- ERROR LOGS -----")
+        with open('data_ingestion.log', 'r') as log_file:
+            error_logs = log_file.readlines()[-5:]  # Last 5 lines of logs
+        for log in error_logs:
+            if log.strip():  # Ignore empty lines
+                print(log)
         raise Exception(f"Error ingesting data: {str(e)}. Check server logs for more details.")
