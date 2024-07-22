@@ -32,7 +32,21 @@ DATA_URL=http://localhost:3000/measurements
 
 ## Création et activation de l'environnement virtuel
 
-### Sous Mac/Linux/Git Bash :
+### Sous Git Bash :
+
+```sh
+python -m venv venv
+source venv/Scripts/activate
+```
+
+### Sous Windows :
+
+```sh
+python -m venv venv
+.\venv\Scripts\activate
+```
+
+### Sous Mac/Linux :
 
 ```sh
 python -m venv venv
