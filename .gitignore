@@ -3,5 +3,6 @@
 /Scripts
 /logs
 /venv
+/data/extracted
 .env
 pyvenv.cfg

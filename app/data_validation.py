@@ -15,7 +15,7 @@ FILE_PATHS = [
 ]
 
 # Function to extract files
-def extract_files(tar_gz_path, extract_path):
+def extract_files(tar_gz_path: str, extract_path: str):
     if not os.path.exists(extract_path):
         os.makedirs(extract_path)
     with tarfile.open(tar_gz_path, 'r:gz') as tar:
@@ -23,7 +23,7 @@ def extract_files(tar_gz_path, extract_path):
     print(f"Files extracted to {extract_path}")
 
 # Function to load and validate JSON or YAML data with progress bar and elapsed time
-def validate_json_or_yaml(file_paths):
+def validate_json_or_yaml(file_paths: list):
     chunk_size = 8192  # Read the file in chunks of 8 KB
     for file_path in file_paths:
         start_time = time.time()
@@ -66,7 +66,7 @@ def validate_json_or_yaml(file_paths):
             print(f"Elapsed Time : {elapsed_time:.2f} seconds")
 
 # Function to display the context around the error
-def display_error_context(data, error):
+def display_error_context(data: str, error: Exception):
     error_pos = error.pos if hasattr(error, 'pos') else None
     if error_pos is not None:
         start = max(0, error_pos - 20)

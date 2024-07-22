@@ -9,6 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 app = FastAPI()
 
+DATA_TAR_GZ_PATH = 'data/202212-datalogger.tar.gz'
+EXTRACTED_DATA_PATH = 'data/extracted'
+FILE_PATHS = [
+    'data/extracted/datalogger/db.json',
+    'data/202212_api_requirements.json',
+    'data/202212_openapi_spec_v1.json'
+]
+
 app.include_router(data_ingestion.router, prefix="/ingest", tags=["data_ingestion"])
 app.include_router(data_retrieval.router, prefix="/api", tags=["data"])
 
@@ -20,8 +28,8 @@ def read_root() -> dict:
 @app.on_event("startup")
 async def startup_event():
     # Extract and validate data
-    extract_files()
-    validate_json_or_yaml()
+    extract_files(DATA_TAR_GZ_PATH, EXTRACTED_DATA_PATH)
+    validate_json_or_yaml(FILE_PATHS)
 
     # Start JSON Server
     subprocess.Popen(["json-server", "--watch", "data/extracted/datalogger/db.json"])
