@@ -10,7 +10,7 @@ def fetch_data(db: Session):
 
 def plot_time_series(data):
     plt.figure(figsize=(10, 6))
-    sns.lineplot(x='timestamp', y='value', data=data)
+    sns.lineplot(x='measured_at', y='value', data=data)
     plt.title('Time Series Data')
     plt.xlabel('Date')
     plt.ylabel('Value')
@@ -30,7 +30,7 @@ def plot_histogram(data):
 
 def plot_boxplot(data):
     plt.figure(figsize=(10, 6))
-    sns.boxplot(x='timestamp', y='value', data=data)
+    sns.boxplot(x='measured_at', y='value', data=data)
     plt.title('Boxplot of Values Over Time')
     plt.xlabel('Date')
     plt.ylabel('Value')
@@ -38,7 +38,7 @@ def plot_boxplot(data):
     plt.savefig('/tmp/boxplot.png')
     plt.close()
 
-def generate_visualizations(db: Session):
+async def generate_visualizations(db: Session):
     data = fetch_data(db)
     plot_time_series(data)
     plot_histogram(data)

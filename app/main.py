@@ -5,7 +5,7 @@ from app.db import init_db, get_db
 from app.api.endpoints.data_ingestion import ingest_data_from_main
 from app.data_viz import generate_visualizations
 from app.data_validation import extract_files, validate_json_or_yaml
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 app = FastAPI()
 
@@ -30,8 +30,8 @@ async def startup_event():
     await init_db()
 
     # Run data ingestion
-    db: Session = next(get_db())
+    db: AsyncSession = next(get_db())
     await ingest_data_from_main(db=db)
 
     # Generate data visualizations
-    generate_visualizations(db=db)
+    await generate_visualizations(db=db)
