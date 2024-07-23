@@ -63,9 +63,7 @@ pip install -r requirements.txt
 
 ## Lancement du projet
 
-### Lancement de l'application FastAPI avec hypercorn (incluant l'extraction et la validation des données, le démarrage 
-### du serveur JSON, l'initialisation de la base de données, l'ingestion des données et la génération de la data 
-### visualisations :
+### App FastAPI avec hypercorn (data extract + validation, JSON server start, bdd init, data ingest + dataviz :
 
 ```sh
 hypercorn app.main:app --config hypercorn_config.py
