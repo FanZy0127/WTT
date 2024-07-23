@@ -27,7 +27,7 @@ DATABASE_URL=sqlite+aiosqlite:///./test.db
 # For PostgreSQL, uncomment the line below and comment the SQLite line
 # DATABASE_URL=postgresql+asyncpg://user:password@localhost/dbname
 
-DATA_URL=http://localhost:3000/measurements
+DATA_URL=http://localhost:3001/measurements
 JSON_SERVER_PATH="C:\\PATH\\TO\\YOUR\\npm\\json-server.cmd"
 ```
 
