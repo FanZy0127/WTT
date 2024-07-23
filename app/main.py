@@ -37,22 +37,20 @@ def read_root() -> dict:
 
 @app.on_event("startup")
 async def startup_event():
-    # Extract and validate data
+
+    os.makedirs('output', exist_ok=True)
+
     extract_files(DATA_TAR_GZ_PATH, EXTRACTED_DATA_PATH)
     validate_json_or_yaml(FILE_PATHS)
 
-    # Start JSON Server
-    subprocess.Popen([JSON_SERVER_PATH, "--watch", "data/extracted/datalogger/db.json", "--port", "3001"])
+    subprocess.Popen([JSON_SERVER_PATH, "--watch", "data/extracted/datalogger/db.json", "--port", "3000"])
 
-    # Initialize the database
     await init_db()
 
-    await asyncio.sleep(1)
+    await asyncio.sleep(2)
 
-    # Create an async session
     async with AsyncSession(engine) as db:
-        # Run data ingestion
+
         await ingest_data_from_main(db=db)
 
-        # Generate data visualizations
         await generate_visualizations(db=db)

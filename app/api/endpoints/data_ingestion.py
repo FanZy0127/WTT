@@ -20,17 +20,17 @@ def fetch_data_from_json_server() -> List[DataCreate]:
         response = requests.get(settings.DATA_URL)
         response.raise_for_status()
         raw_data = response.json()
-        logger.info(f"Number of records received: {len(raw_data)}")
+        # logger.info(f"Number of records received: {len(raw_data)}")  # Comment this line
 
         # Log the raw data for inspection, truncate if too large
-        raw_data_str = json.dumps(raw_data, indent=2)
-        if len(raw_data_str) > 1000:
-            logger.info(f"Raw data received (truncated): {raw_data_str[:500]}...{raw_data_str[-500:]}")
-        else:
-            logger.info(f"Raw data received: {raw_data_str}")
+        # raw_data_str = json.dumps(raw_data, indent=2)
+        # if len(raw_data_str) > 1000:
+        #     logger.info(f"Raw data received (truncated): {raw_data_str[:500]}...{raw_data_str[-500:]}")
+        # else:
+        #     logger.info(f"Raw data received: {raw_data_str}")
 
         transformed_data, ignored_records = transform_data(raw_data)
-        logger.info(f"Total ignored records: {ignored_records}")
+        # logger.info(f"Total ignored records: {ignored_records}")  # Comment this line
         return [DataCreate(**record) for record in transformed_data]
     except requests.RequestException as e:
         logger.error(f"Error fetching data from JSON server: {e}")
@@ -49,14 +49,14 @@ def transform_data(raw_data: Any) -> (List[Dict[str, Any]], int):
     try:
         if isinstance(raw_data, list):
             for record in raw_data:
-                logger.info(f"Processing record: {record}")
+                # logger.info(f"Processing record: {record}")  # Comment this line
                 if isinstance(record, dict):
                     process_record(record, transformed_data, ignored_records)
                 else:
                     logger.warning(f"Ignored entry with expected dict, got {type(record).__name__}: {record}")
                     ignored_records += 1
         elif isinstance(raw_data, dict):
-            logger.info(f"Processing raw_data as dict")
+            # logger.info(f"Processing raw_data as dict")  # Comment this line
             process_record(raw_data, transformed_data, ignored_records)
         else:
             logger.error(f"Expected list or dict, got {type(raw_data).__name__}: {raw_data}")
@@ -69,10 +69,10 @@ def transform_data(raw_data: Any) -> (List[Dict[str, Any]], int):
 
 def process_record(record: Dict[str, Any], transformed_data: List[Dict[str, Any]], ignored_records: int) -> None:
     for timestamp, values in record.items():
-        logger.info(f"Timestamp: {timestamp}, Values: {values}")
+        # logger.info(f"Timestamp: {timestamp}, Values: {values}")  # Comment this line
         if isinstance(values, dict):
             for label, value in values.items():
-                logger.info(f"Label: {label}, Value: {value}")
+                # logger.info(f"Label: {label}, Value: {value}")  # Comment this line
                 # Ensure that value is a valid float
                 try:
                     value = float(value)

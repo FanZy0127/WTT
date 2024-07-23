@@ -1,12 +1,22 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sqlalchemy.orm import Session
-from app.db import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from app.models import Data
 
-def fetch_data(db: Session):
-    return pd.read_sql(db.query(Data).statement, db.bind)
+async def fetch_data(db: AsyncSession):
+    query = select(Data)
+    result = await db.execute(query)
+    data = result.fetchall()
+
+    data_frame = pd.DataFrame([{
+        'id': row[0].id,
+        'label': row[0].label,
+        'value': row[0].value,
+        'measured_at': row[0].measured_at
+    } for row in data])
+    return data_frame
 
 def plot_time_series(data):
     plt.figure(figsize=(10, 6))
@@ -15,7 +25,7 @@ def plot_time_series(data):
     plt.xlabel('Date')
     plt.ylabel('Value')
     plt.grid(True)
-    plt.savefig('/tmp/time_series_plot.png')
+    plt.savefig('output/time_series_plot.png')
     plt.close()
 
 def plot_histogram(data):
@@ -25,7 +35,7 @@ def plot_histogram(data):
     plt.xlabel('Value')
     plt.ylabel('Frequency')
     plt.grid(True)
-    plt.savefig('/tmp/histogram_plot.png')
+    plt.savefig('output/histogram_plot.png')
     plt.close()
 
 def plot_boxplot(data):
@@ -35,14 +45,15 @@ def plot_boxplot(data):
     plt.xlabel('Date')
     plt.ylabel('Value')
     plt.grid(True)
-    plt.savefig('/tmp/boxplot.png')
+    plt.savefig('output/boxplot.png')
     plt.close()
 
-async def generate_visualizations(db: Session):
-    data = fetch_data(db)
+async def generate_visualizations(db: AsyncSession):
+    data = await fetch_data(db)
     plot_time_series(data)
     plot_histogram(data)
     plot_boxplot(data)
+
 
 if __name__ == "__main__":
     db = next(get_db())
