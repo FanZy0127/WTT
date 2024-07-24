@@ -91,7 +91,7 @@ Cliquez sur **Try it out** à droite de *Parameters* puis sur **Execute**.
 #### Par requête curl
 
 ```sh
-curl -X GET "http://127.0.0.1:8000/api/data?datalogger=temp&since=2023-01-01T00:00:00&before=2023-01-02T00:00:00"
+curl -X GET "http://127.0.0.1:8000/api/data?datalogger=temp&since=2022-11-01T00:00:00&before=2023-01-02T00:00:00"
 ```
 
 OU 
@@ -108,19 +108,19 @@ Cliquez sur **Try it out** à droite de *Parameters*, remplissez les paramètres
 #### Agrégation globale par requête curl
 
 ```sh
-curl -X GET "http://127.0.0.1:8000/api/summary?datalogger=temp&span=max&since=2023-01-01T00:00:00&before=2023-01-02T00:00:00"
+curl -X GET "http://127.0.0.1:8000/api/summary?datalogger=temp&span=day&since=2022-10-01T00:00:00&before=2023-01-02T00:00:00"
 ```
 
 #### Agrégation par jour par requête curl
 
 ```sh
-curl -X GET "http://127.0.0.1:8000/api/summary?datalogger=temp&span=day&since=2023-01-01T00:00:00&before=2023-01-02T00:00:00"
+curl -X GET "http://127.0.0.1:8000/api/summary?datalogger=temp&span=day&since=2022-10-01T00:00:00&before=2023-01-02T00:00:00"
 ```
 
 #### Agrégation par heure par requête curl
 
 ```sh
-curl -X GET "http://127.0.0.1:8000/api/summary?datalogger=temp&span=hour&since=2023-01-01T00:00:00&before=2023-01-02T00:00:00"
+curl -X GET "http://127.0.0.1:8000/api/summary?datalogger=temp&span=hour&since=2022-10-01T00:00:00&before=2023-01-02T00:00:00"
 ```
 
 OU 

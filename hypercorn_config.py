@@ -3,4 +3,4 @@ workers = 1
 worker_class = "asyncio"
 loglevel = "error"
 timeout = 120
-startup_timeout = 6000
+startup_timeout = 1800
