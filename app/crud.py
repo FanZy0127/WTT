@@ -97,8 +97,8 @@ async def get_aggregated_data(db: AsyncSession, datalogger: str, span: str, sinc
             for record in aggregated_data
         ]
 
-        logger.info(f"Retrieved {len(aggregated_data)} aggregated records from the database.")
-        return aggregated_data
+        logger.info(f"Retrieved {len(response)} aggregated records from the database.")
+        return response
     except Exception as e:
         logger.error(f"Error retrieving aggregated data: {e}")
         raise
