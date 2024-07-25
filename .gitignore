@@ -5,13 +5,13 @@
 /logs
 /venv
 /data/extracted
+app/__pycache__/
+app/api/__pycache__/
+app/api/endpoints/__pycache__/
+tests/__pycache__/
 .env
 .coverage
 coverage.xml
 pyvenv.cfg
 test.db
-app/__pycache__/
-app/api/__pycache__/
-app/api/endpoints/__pycache__/
-tests/__pycache__/
 test.db-journal
