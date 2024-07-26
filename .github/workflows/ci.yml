@@ -32,9 +32,30 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Install Node dependencies
+    - name: Check Node.js version
+      run: node -v
+
+    - name: Check npm version
+      run: npm -v
+
+    - name: List files in data/extracted/datalogger
+      run: ls -la data/extracted/datalogger
+      if: runner.os == 'Linux'
+
+    - name: List files in data\extracted\datalogger
+      run: dir data\extracted\datalogger
+      if: runner.os == 'Windows'
+
+    - name: Install Node dependencies (Ubuntu)
+      if: runner.os == 'Linux'
       run: |
         cd data/extracted/datalogger
+        npm install
+
+    - name: Install Node dependencies (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        cd data\extracted\datalogger
         npm install
 
     - name: Start JSON Server (Ubuntu)
