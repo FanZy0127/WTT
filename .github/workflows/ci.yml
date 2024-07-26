@@ -8,8 +8,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ["3.8", "3.9", "3.10"]
-        node-version: [16.x, 18.x]
+        python-version: ['3.8', '3.9', '3.10']
+        node-version: ['16.x', '18.x']
 
     steps:
     - name: Checkout repository
@@ -25,6 +25,13 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
+    - name: Install Python dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate || .\venv\Scripts\activate
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
     - name: Install Node dependencies
       run: |
         cd data/extracted/datalogger
@@ -38,76 +45,39 @@ jobs:
     - name: Start JSON Server (Windows)
       if: runner.os == 'Windows'
       run: |
-        Start-Process -NoNewWindow json-server --watch data/extracted/datalogger/db.json
+        Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "json-server", "--watch", "data/extracted/datalogger/db.json"
 
-    - name: Install Python dependencies (Ubuntu)
-      if: runner.os == 'Linux'
+    - name: Lint with ruff
       run: |
-        python -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Install Python dependencies (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        python -m venv venv
-        .\venv\Scripts\activate
-        pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Lint with ruff (Ubuntu)
-      if: runner.os == 'Linux'
-      run: |
-        source venv/bin/activate
+        source venv/bin/activate || .\venv\Scripts\activate
         ruff .
 
-    - name: Lint with ruff (Windows)
-      if: runner.os == 'Windows'
+    - name: Type check with mypy
       run: |
-        .\venv\Scripts\activate
-        ruff .
-
-    - name: Type check with mypy (Ubuntu)
-      if: runner.os == 'Linux'
-      run: |
-        source venv/bin/activate
+        source venv/bin/activate || .\venv\Scripts\activate
         mypy .
 
-    - name: Type check with mypy (Windows)
-      if: runner.os == 'Windows'
+    - name: Format check with black
       run: |
-        .\venv\Scripts\activate
-        mypy .
-
-    - name: Format check with black (Ubuntu)
-      if: runner.os == 'Linux'
-      run: |
-        source venv/bin/activate
-        black --check .
-
-    - name: Format check with black (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        .\venv\Scripts\activate
+        source venv/bin/activate || .\venv\Scripts\activate
         black --check .
 
     - name: Run main script (Ubuntu)
       if: runner.os == 'Linux'
       run: |
-        source venv/bin/activate
-        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+        source venv/bin/activate || .\venv\Scripts\activate
+        hypercorn app.main:app --config hypercorn_config.py
 
     - name: Run main script (Windows)
       if: runner.os == 'Windows'
       run: |
         .\venv\Scripts\activate
-        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+        hypercorn app.main:app --config hypercorn_config.py
 
     - name: Run tests with pytest (Ubuntu)
       if: runner.os == 'Linux'
       run: |
-        source venv/bin/activate
+        source venv/bin/activate || .\venv\Scripts\activate
         pytest --cov=app --cov-report=term-missing:skip-covered --cov-report=xml --cov-report=html
 
     - name: Run tests with pytest (Windows)
@@ -117,19 +87,13 @@ jobs:
         pytest --cov=app --cov-report=term-missing:skip-covered --cov-report=xml --cov-report=html
 
     - name: Upload coverage report
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: coverage-report
         path: coverage.xml
 
     - name: Upload HTML coverage report
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: html-coverage-report
         path: htmlcov/
-
-    - name: Upload data visualization
-      uses: actions/upload-artifact@v2
-      with:
-        name: data-visualization
-        path: /tmp/*.png
