@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from app.api.endpoints import data_ingestion, data_retrieval
 from app.db import init_db, get_db, engine
 from app.api.endpoints.data_ingestion import ingest_data_from_main
-from app.data_viz import generate_visualizations
 from app.data_validation import extract_files, validate_json_or_yaml
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -56,8 +55,6 @@ async def startup_event():
         logging.info("Starting data ingestion.")
         await ingest_data_from_main(db=db)
 
-        # logging.info("Generating data visualizations.")
-        # await generate_visualizations(db=db)
 
     # logging.info("Stopping JSON Server.")
     # json_server_process.terminate()

@@ -108,7 +108,7 @@ Cliquez sur **Try it out** à droite de *Parameters*, remplissez les paramètres
 #### Agrégation globale par requête curl
 
 ```sh
-curl -X GET "http://127.0.0.1:8000/api/summary?datalogger=temp&span=day&since=2022-10-01T00:00:00&before=2023-01-02T00:00:00"
+curl -X GET "http://localhost:8000/api/summary?datalogger=test_logger&span=day"
 ```
 
 #### Agrégation par jour par requête curl
@@ -135,6 +135,32 @@ Cliquez sur **Try it out** à droite de *Parameters*, remplissez les paramètres
 ## Tests
 
 ### Exécution manuelle des tests unitaires (TU)
+
+**!IMPORTANT**
+
+*Afin de pouvoir assurer le bon fonctionnement des tests, pensez à remplacer la variable 
+"JSON_SERVER_PATH=\"Path\\\\To\\\\Your\\\\npm\\\\json-server.cmd\"\n" (au sein de la fonction ensure_env_file()) par le 
+path correspond à celui de votre machine :
+
+```py
+@pytest.fixture(scope="module", autouse=True)
+def ensure_env_file():
+    env_file_content = (
+        "DATABASE_URL=sqlite+aiosqlite:///./test.db\n"
+        "DATA_URL=http://localhost:3000/measurements\n"
+        "JSON_SERVER_PATH=\"Path\\\\To\\\\Your\\\\npm\\\\json-server.cmd\"\n"
+    )
+
+    if not os.path.exists(".env"):
+        with open(".env", "w", encoding="utf-8") as f:
+            f.write(env_file_content)
+
+    yield
+
+    with open(".env", "w", encoding="utf-8") as f:
+        f.write(env_file_content)
+```
+
 
 ```sh
 pytest tests/nom_du_fichier_de_test
