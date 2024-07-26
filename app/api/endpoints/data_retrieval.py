@@ -23,10 +23,12 @@ async def retrieve_data(
             logger.warning(f"No data found matching the criteria: datalogger={datalogger}, since={since}, before={before}")
             raise HTTPException(status_code=404, detail="No data found matching the criteria.")
         logger.info(f"Retrieved {len(data)} records for datalogger: {datalogger}")
-        # Convert measured_at to string for all records
         for record in data:
             record.measured_at = record.measured_at.isoformat()
-        return {"data": data}
+        return DataRetrievalResponse(data=data)
+    except HTTPException as e:
+        logger.error(f"HTTP error retrieving data: {e.detail}")
+        raise e
     except Exception as e:
         logger.error(f"Error retrieving data: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -34,7 +36,7 @@ async def retrieve_data(
 @router.get("/summary", response_model=AggregatedDataRetrievalResponse)
 async def retrieve_aggregated_data(
     datalogger: str = Query(...),
-    span: Literal["hour", "day", "month"] = Query("day"),  # Use Literal for strict validation
+    span: Literal["hour", "day", "month"] = Query("day"),
     since: Optional[str] = Query(None),
     before: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db)
@@ -46,10 +48,13 @@ async def retrieve_aggregated_data(
             logger.warning(f"No aggregated data found matching the criteria: datalogger={datalogger}, span={span}, since={since}, before={before}")
             raise HTTPException(status_code=404, detail="No data found matching the criteria.")
         logger.info(f"Retrieved {len(data)} aggregated records for datalogger: {datalogger} with span: {span}")
-        return {"data": data}
+        return AggregatedDataRetrievalResponse(data=data)
     except ValueError as ve:
         logger.error(f"Invalid span value: {ve}")
         raise HTTPException(status_code=400, detail=str(ve))
+    except HTTPException as e:
+        logger.error(f"HTTP error retrieving aggregated data: {e.detail}")
+        raise e
     except Exception as e:
         logger.error(f"Error retrieving aggregated data: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
