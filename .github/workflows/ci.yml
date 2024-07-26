@@ -56,19 +56,40 @@ jobs:
         pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Lint with ruff
+    - name: Lint with ruff (Ubuntu)
+      if: runner.os == 'Linux'
       run: |
         source venv/bin/activate
         ruff .
 
-    - name: Type check with mypy
+    - name: Lint with ruff (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        .\venv\Scripts\activate
+        ruff .
+
+    - name: Type check with mypy (Ubuntu)
+      if: runner.os == 'Linux'
       run: |
         source venv/bin/activate
         mypy .
 
-    - name: Format check with black
+    - name: Type check with mypy (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        .\venv\Scripts\activate
+        mypy .
+
+    - name: Format check with black (Ubuntu)
+      if: runner.os == 'Linux'
       run: |
         source venv/bin/activate
+        black --check .
+
+    - name: Format check with black (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        .\venv\Scripts\activate
         black --check .
 
     - name: Run main script (Ubuntu)
